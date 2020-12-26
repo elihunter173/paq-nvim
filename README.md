@@ -6,7 +6,7 @@ Paq is a Neovim package manager written in Lua.
 
 - __Simple__: Easy to use and configure
 - __Fast__:   Installs and updates packages concurrently using Nvim's event-loop
-- __Small__:  Around 100 LOC
+- __Small__:  Around 150 LOC
 
 
 ## Requirements

@@ -1,4 +1,4 @@
-*paq-nvim.txt*  Package manager for Nvim version 0.5  Last change: 2020-10-22
+*paq-nvim.txt*  Package manager for Nvim version 0.5  Last change: 2020-12-25
 *paq-nvim*
 
 Author: Sergio Alejandro Vargas    <savargasqu+git@unal.edu.co>
@@ -39,7 +39,7 @@ FEATURES                                                        *paq-features*
 
 - Fast installation and updating using Nvim's |loop|
 
-- Small implementation, around 100 LOC
+- Small implementation, around 150 LOC
 
 
 ==============================================================================
@@ -81,7 +81,10 @@ imported as `Paq`, we have:
 
   Add a package to Paq's (internal) list. It can take a table or a string.
   When a table is passed, the first value has to be a string with the name of
-  the repository, like: `'<GitHub-username>/<repository-name>'`.
+  the repository, like:
+      - `'<GitHub-username>/<repo-name>'`,
+      - `'<local-path>'`, or
+      - `'<git-url>'`.
   The other key-value pairs in the table have to be named explicitly,
   see |paq-options|. If only a string is passed, it works as if it was the
   first value of the table, and all other options will be set to their default
@@ -121,6 +124,19 @@ as long as the name of the repository is the first thing on the table.
 
 The options are the following:
 
+`as`
+  String indicating the alias or name of the plugin, which determines the name
+  of the directory where Paq will download the plugin.
+
+  If left unspecified, Paq will infer it from the plugin string.
+      - For `'<GitHub-username>/<repo-name>'` that is `<repo-name>`.
+      - For `'<local-path>'` that is the basename of the path (i.e. the
+        directory name).
+      - For `'<git-url>'` this must be specified.
+
+  Default value: `nil`
+
+
 `branch`
   String with the name of a branch of the git repository. If set,
   Paq will only download that specific branch.
@@ -159,14 +175,6 @@ The options are the following:
   and |packadd|.
 
   Default value: `false`
-
-
-`url`
-  String indicating the URL of the git repository. This allows Paq to
-  download packages from any website; however, for convenience, if not set,
-  Paq will try to find the repository on GitHub.com.
-
-  Default value: `'https://github.com/'..'<GitHub-username>/<repository-name>'`
 
 
 Example~
