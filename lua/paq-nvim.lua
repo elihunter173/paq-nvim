@@ -7,6 +7,8 @@ local uv = vim.loop -- Alias for Neovim's event loop (libuv)
 local packages = {} -- Table of 'name':{options} pairs
 local call_cmd      -- To handle mutual funtion recursion (Lua shenanigans)
 
+local M = {}
+
 local function print_res(action, args, ok)
     local res = ok and 'Paq: ' or 'Paq: Failed to '
     print(res .. action .. ' ' .. args)
@@ -45,24 +47,6 @@ function call_cmd(cmd, name, dir, action, args, hook)
         )
 end
 
-local function install_pkg(name, dir, isdir, args)
-    local install_args
-    if not isdir then
-        if args.branch then
-            install_args = {'clone', args.url, '-b',  args.branch, '--single-branch', dir}
-        else
-            install_args = {'clone', args.url, dir}
-        end
-        call_cmd('git', name, dir, 'install', install_args, args.hook)
-    end
-end
-
-local function update_pkg(name, dir, isdir, args)
-    if isdir then
-        call_cmd('git', name, dir, 'update', {'pull'}, args.hook)
-    end
-end
-
 local function map_pkgs(fn)
     local dir, isdir
     for name, args in pairs(packages) do
@@ -94,7 +78,7 @@ local function rmdir(dir, ispkgdir)
     return ispkgdir or uv.fs_rmdir(dir) -- Don't delete start or opt
 end
 
-local function paq(args)
+function M.paq(args)
     if type(args) == 'string' then
         args = {args}
     end
@@ -113,9 +97,31 @@ local function paq(args)
     }
 end
 
-return {
-    install = function() map_pkgs(install_pkg) end,
-    update  = function() map_pkgs(update_pkg) end,
-    clean   = function() rmdir(PATH..'start', 1); rmdir(PATH..'opt', 1) end,
-    paq     = paq
-}
+function M.install()
+    map_pkgs(function(name, dir, isdir, args)
+        local install_args
+        if not isdir then
+            if args.branch then
+                install_args = {'clone', args.url, '-b',  args.branch, '--single-branch', dir}
+            else
+                install_args = {'clone', args.url, dir}
+            end
+            call_cmd('git', name, dir, 'install', install_args, args.hook)
+        end
+    end)
+end
+
+function M.update()
+    map_pkgs(function(name, dir, isdir, args)
+        if isdir then
+            call_cmd('git', name, dir, 'update', {'pull'}, args.hook)
+        end
+    end)
+end
+
+function M.clean()
+    rmdir(PATH..'start', 1)
+    rmdir(PATH..'opt', 1)
+end
+
+return M
